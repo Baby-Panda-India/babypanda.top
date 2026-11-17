@@ -169,61 +169,27 @@
     if (!reduce) doc.classList.add('motion');
   }
 
-  /* ---------- crew: pinned scene; scroll lifts the fog, pulls the camera back, tells the story ---------- */
+  /* ---------- crew: the camera eases back while a giant word slides behind the team ---------- */
   const crew = document.querySelector('[data-crew]');
-  if (crew && !reduce) {
-    const stick = crew.querySelector('.crew-stick');
-    const world = crew.querySelector('[data-crew-world]');
-    const fogs = [...crew.querySelectorAll('[data-fog]')].map((el) => ({ el, k: +el.dataset.fog }));
-    const beats = [...crew.querySelectorAll('[data-beat]')];
-    const steps = [...crew.querySelectorAll('[data-step]')];
-    const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
-    // Scroll progress is smoothed by a critically damped spring so wheel steps glide.
-    const prog = spring(0, { damping: 1, response: 0.35 });
-    // Mist drifts toward the pointer: independent X and Y springs.
-    const mx = spring(0, { damping: 1, response: 1.2 });
-    const my = spring(0, { damping: 1, response: 1.2 });
-    // Beat windows: [fade in start, fully in, fade out start, gone]
-    const W = [[0.0, 0.04, 0.2, 0.27], [0.27, 0.33, 0.47, 0.53], [0.53, 0.59, 0.7, 0.76], [0.8, 0.88, 2, 2]];
-    renderers.add(() => {
-      const p = clamp(prog.value, 0, 1);
-      const clear = smooth(0.05, 0.78, p);             // fog lifting
-      world.style.setProperty('--z', (1.35 - 0.35 * smooth(0, 0.85, p)).toFixed(4));
-      world.style.setProperty('--blur', (1 - smooth(0.12, 0.7, p)).toFixed(3));
-      world.style.setProperty('--bright', (0.55 + 0.45 * smooth(0.3, 0.85, p)).toFixed(3));
-      stick.style.setProperty('--light', smooth(0.45, 0.9, p).toFixed(3));
-      fogs.forEach(({ el, k }, i) => {
-        const spread = clear * 38 * Math.sign(k) * (1 + i * 0.25);   // fog parts to the sides
-        el.style.transform = `translate3d(${(spread + mx.value * k * 3).toFixed(2)}vw, ${(my.value * k * 1.5 - clear * 6).toFixed(2)}vh, 0)`;
-        el.style.opacity = (1 - clear * 0.96).toFixed(3);
-      });
-      beats.forEach((el, i) => {
-        const [a0, a1, b0, b1] = W[i];
-        const o = smooth(a0, a1, p) * (1 - smooth(b0, b1, p));
-        el.style.opacity = o.toFixed(3);
-        el.style.transform = `translateY(${((1 - smooth(a0, a1, p)) * 24 - smooth(b0, b1, p) * 24).toFixed(1)}px)`;
-        el.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
-        el.setAttribute('aria-hidden', o > 0.5 ? 'false' : 'true');
-      });
-      const active = W.reduce((acc, w, i) => (p >= w[0] ? i : acc), 0);
-      steps.forEach((li, i) => li.classList.toggle('on', i === active));
-    });
-    const job = () => {
-      const r = crew.getBoundingClientRect();
-      const span = r.height - innerHeight;
-      prog.to(clamp(-r.top / Math.max(1, span), 0, 1));
-    };
-    scrollJobs.add(job); job();
-    prog.jump(prog.target); wake();
-    if (finePointer) {
-      stick.addEventListener('pointermove', (e) => {
-        mx.to((e.clientX / innerWidth - 0.5) * 2);
-        my.to((e.clientY / innerHeight - 0.5) * 2);
-      });
-      stick.addEventListener('pointerleave', () => { mx.to(0); my.to(0); });
+  if (crew) {
+    const photo = crew.querySelector('[data-crew-photo]');
+    if (reduce) { crew.classList.add('shown'); }
+    else {
+      // Scroll progress, smoothed by a critically damped spring so wheel steps glide
+      const prog = spring(0, { damping: 1, response: 0.4 });
+      renderers.add(() => photo.style.setProperty('--p', clamp(prog.value, 0, 1).toFixed(4)));
+      const job = () => {
+        const r = crew.getBoundingClientRect();
+        const span = r.height - innerHeight;
+        const p = clamp(-r.top / Math.max(1, span), 0, 1);
+        // let the scene start moving as it scrolls into view, not only once pinned
+        const enter = clamp((innerHeight - r.top) / innerHeight, 0, 1);
+        prog.to(p * 0.85 + enter * 0.15);
+        if (enter > 0.55) crew.classList.add('shown');
+      };
+      scrollJobs.add(job); job();
+      prog.jump(prog.target); wake();
     }
-  } else if (crew) {
-    crew.querySelectorAll('[data-beat]').forEach((el) => { el.style.opacity = 1; });
   }
 
   /* ---------- reveal on scroll (only things below the fold, so nothing flashes) ---------- */
@@ -495,6 +461,14 @@
       const mio = new IntersectionObserver((en) => { if (en[0].isIntersecting) { mio.disconnect(); go(); } }, { rootMargin: '400px' });
       mio.observe(mapEl);
     } else go();
+  }
+
+  /* map list: drop the bottom fade once it's scrolled to the end */
+  const mapList = document.querySelector('.map-list');
+  if (mapList) {
+    const edge = () => mapList.classList.toggle('at-end', mapList.scrollTop + mapList.clientHeight >= mapList.scrollHeight - 4);
+    mapList.addEventListener('scroll', edge, { passive: true });
+    addEventListener('resize', edge); edge();
   }
 
   queueScroll();
