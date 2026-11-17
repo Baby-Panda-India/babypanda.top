@@ -522,3 +522,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .hero-rot .rot { display: block; width: auto !important; }
   .hero-sub { display: none; }
 }
+
+/* rotator: share one line box with "We've walked to" so the baselines match */
+.hero-rot { line-height: 1.3; }
+.rot { height: 1.3em; line-height: 1.3; vertical-align: top; }
+.rot-word { line-height: 1.3; vertical-align: top; }
