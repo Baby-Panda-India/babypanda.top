@@ -270,8 +270,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .map-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 1.4rem; align-items: stretch; }
 .map { min-height: 460px; border-radius: var(--radius); overflow: hidden; background: var(--surface-2); box-shadow: var(--shadow); }
 .map-list { background: var(--surface); border-radius: var(--radius); padding: .6rem; box-shadow: var(--shadow); max-height: 460px; overflow: auto; }
-.map-list li { display: grid; grid-template-columns: 1.8rem 1fr; padding: .55rem .6rem; border-radius: 12px; }
-.map-list li::before { content: counter(list-item); grid-row: span 2; font-weight: 800; color: var(--leaf); font-variant-numeric: tabular-nums; }
+.map-list li { display: grid; padding: .55rem .7rem; border-radius: 12px; }
 .map-list li:hover { background: var(--surface-2); }
 .map-list a { color: var(--ink); font-weight: 700; text-decoration: none; }
 .map-list a:hover { text-decoration: underline; }
@@ -527,3 +526,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .hero-rot { line-height: 1.3; }
 .rot { height: 1.3em; line-height: 1.3; vertical-align: top; }
 .rot-word { line-height: 1.3; vertical-align: top; }
+
+/* home journal: first six, then "View more" per filter */
+.more-row { display: flex; justify-content: center; margin-top: 2rem; }
+.more-row[hidden] { display: none; }
+.more-btn { gap: .6rem; }
+.more-chev { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .45s var(--ease); }
+.more-btn[aria-expanded="true"] .more-chev { transform: translateY(2px) rotate(225deg); }

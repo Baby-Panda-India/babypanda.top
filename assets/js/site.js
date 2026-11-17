@@ -304,23 +304,63 @@
       else { sx.to(btn.offsetLeft); sw.to(btn.offsetWidth); }
     };
     let current = buttons.find((b) => b.getAttribute('aria-selected') === 'true');
+    // Home page shows the first N of each filter; "View more" opens the rest in place.
+    const limit = +grid.dataset.limit || Infinity;
+    const moreRow = grid.parentElement.querySelector('[data-more-row]');
+    const moreBtn = moreRow?.querySelector('[data-more]');
+    const moreLabel = moreRow?.querySelector('[data-more-label]');
+    const expanded = {};
+    const rangeName = (f) => buttons.find((b) => b.dataset.filter === f).firstChild.textContent.trim();
+    const apply = (animate) => {
+      const f = current.dataset.filter;
+      const open = !!expanded[f];
+      let match = 0, k = 0;
+      grid.querySelectorAll('.card').forEach((c) => {
+        const inRange = f === 'all' || c.dataset.range === f;
+        const show = inRange && (open || match < limit);
+        if (inRange) match++;
+        if (show && c.hidden) {
+          c.hidden = false;
+          if (animate && !reduce) { c.classList.remove('in', 'pop'); c.style.setProperty('--stagger', `${Math.min(k, 6) * 45}ms`); void c.offsetWidth; c.classList.add('pop'); }
+        } else if (!show) c.hidden = true;
+        if (show) { c.classList.add('in'); k++; }
+      });
+      if (moreRow) {
+        const extra = match - limit;
+        moreRow.hidden = extra <= 0;
+        if (extra > 0) {
+          moreBtn.setAttribute('aria-expanded', String(open));
+          moreLabel.textContent = open ? 'Show fewer' : (f === 'all' ? `View ${extra} more treks` : `View ${extra} more in the ${rangeName(f)}`);
+          moreBtn.setAttribute('href', moreBtn.getAttribute('href').split('#')[0] + (f === 'all' ? '' : '#' + f));
+        }
+      }
+    };
+    if (moreBtn) {
+      moreBtn.setAttribute('role', 'button');
+      moreBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const f = current.dataset.filter;
+        expanded[f] = !expanded[f];
+        apply(true);
+        // Collapsing: bring the button back into view so the page doesn't jump away from it
+        if (!expanded[f]) moreRow.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
     const select = (btn, focus) => {
       if (btn === current) return;
       current = btn;
       buttons.forEach((b) => { b.setAttribute('aria-selected', String(b === btn)); b.tabIndex = b === btn ? 0 : -1; });
       place(btn);
       if (focus) btn.focus();
-      const f = btn.dataset.filter;
-      let k = 0;
-      grid.querySelectorAll('.card').forEach((c) => {
-        const show = f === 'all' || c.dataset.range === f;
-        if (show && c.hidden) {
-          c.hidden = false;
-          if (!reduce) { c.classList.remove('in', 'pop'); c.style.setProperty('--stagger', `${Math.min(k, 6) * 45}ms`); void c.offsetWidth; c.classList.add('pop'); }
-        } else if (!show) c.hidden = true;
-        if (show) { c.classList.add('in'); k++; }
-      });
+      apply(true);
     };
+    // /treks/#sahyadris opens on that range (the home page's no-JS "View more" link lands here)
+    const fromHash = buttons.find((b) => b.dataset.filter === location.hash.slice(1));
+    if (fromHash && fromHash !== current) {
+      current = fromHash;
+      buttons.forEach((b) => { b.setAttribute('aria-selected', String(b === fromHash)); b.tabIndex = b === fromHash ? 0 : -1; });
+    }
+    apply(false);
     buttons.forEach((b) => {
       b.addEventListener('pointerdown', (e) => { if (e.button === 0) select(b); }); // respond on press
       b.addEventListener('click', () => select(b));

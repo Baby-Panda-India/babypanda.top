@@ -168,7 +168,7 @@ def card(t, idx, depth):
 </li>"""
 
 
-def journal(depth, heading_tag="h2", intro=True):
+def journal(depth, heading_tag="h2", intro=True, limit=None):
     counts = {r: sum(1 for t in TREKS if t["range"] == r) for r in RANGES}
     seg = '<button type="button" role="tab" aria-selected="true" data-filter="all">All <span>{}</span></button>'.format(len(TREKS))
     seg += "".join(
@@ -176,6 +176,11 @@ def journal(depth, heading_tag="h2", intro=True):
         for r in RANGES
     )
     cards = "\n".join(card(t, i, depth) for i, t in enumerate(TREKS))
+    more = (
+        f'<div class="more-row" data-more-row><a class="btn btn-quiet more-btn" href="{"../" * depth}treks/" data-more>'
+        f'<span data-more-label>See all {len(TREKS)} treks</span> <span class="more-chev" aria-hidden="true"></span></a></div>'
+        if limit else ""
+    )
     lead = (
         f'<p class="lead">All {len(TREKS)} Baby Panda Treks so far, newest first, from our first monsoon trek in the Sahyadris to the shola forests of Kodaikanal.</p>'
         if intro else ""
@@ -189,9 +194,10 @@ def journal(depth, heading_tag="h2", intro=True):
     <div class="seg" role="tablist" aria-label="Filter treks by mountain range" data-seg>
       <span class="seg-pill" aria-hidden="true"></span>{seg}
     </div>
-    <ul class="grid" data-grid>
+    <ul class="grid" data-grid{f' data-limit="{limit}"' if limit else ""}>
 {cards}
     </ul>
+    {more}
   </div>
 </section>
 """
@@ -205,7 +211,7 @@ def map_section(depth):
         for t in TREKS if t.get("at")
     ]
     legend = "".join(
-        f'<li value="{t["num"]}"><a href="{up}treks/{t["slug"]}.html">{e(t["name"])}</a><span>{e(t["place"].split(", ")[-1])}</span></li>'
+        f'<li><a href="{up}treks/{t["slug"]}.html">{e(t["name"])}</a><span>{e(t["place"].split(", ")[-1])}</span></li>'
         for t in TREKS
     )
     return f"""<section class="section map-sec" id="map" aria-labelledby="map-h">
@@ -214,7 +220,7 @@ def map_section(depth):
     <p class="lead">From the Sahyadri forts around Mumbai and Pune to the Andhra waterfalls near Chennai and the shola forests of Kodaikanal. Pins are approximate; a few treks aren't pinned yet.</p></div>
     <div class="map-wrap">
       <div class="map" data-map data-points='{e(json.dumps(pts))}' role="img" aria-label="Map of India with pins at each trek location"></div>
-      <ol class="map-list">{legend}</ol>
+      <ul class="map-list">{legend}</ul>
     </div>
   </div>
 </section>
@@ -413,7 +419,7 @@ def page_home():
   <div><b data-count="1">1</b><span>app in the making</span></div>
 </section>
 """
-    out += journal(0) + map_section(0) + thadam_section(0) + join_section() + faq_section() + "</main>\n" + footer(0)
+    out += journal(0, limit=6) + map_section(0) + thadam_section(0) + join_section() + faq_section() + "</main>\n" + footer(0)
     return out
 
 
