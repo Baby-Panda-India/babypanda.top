@@ -157,7 +157,7 @@ def card(t, idx, depth):
     spec_html = '<span class="dot" aria-hidden="true">·</span>'.join(f"<span>{s}</span>" for s in spec)
     return f"""<li class="card" data-range="{slug_range(t['range'])}">
   <a href="{up}treks/{t['slug']}.html">
-    <div class="card-art">{ridge_art(t, idx)}<span class="chip">{e(t['range'])}</span><span class="num" aria-label="Trek {t['num']}">BPT {t['num']:02d}</span></div>
+    <div class="card-art">{ridge_art(t, idx)}<span class="chip">{e(t['range'])}</span></div>
     <div class="card-body">
       <p class="spec">{spec_html}</p>
       <h3>{e(t['name'])}</h3>
