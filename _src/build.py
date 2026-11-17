@@ -320,7 +320,7 @@ def hero_section():
     places = [rot_names.get(t["slug"], t["name"]) for t in TREKS]
     first = e(places[0])
     ticker_items = "".join(
-        f'<li><a href="treks/{t["slug"]}.html"><span>BPT {t["num"]:02d}</span>{e(t["name"])}</a></li>' for t in sorted(TREKS, key=lambda t: t["num"])
+        f'<li><a href="treks/{t["slug"]}.html">{e(t["name"])}</a></li>' for t in sorted(TREKS, key=lambda t: t["num"])
     )
     import json
     return f"""<section class="hero" aria-labelledby="hero-h" data-hero>
@@ -467,9 +467,9 @@ def page_trek(i):
         f'<a class="btn{" btn-quiet" if j else ""}" href="{u}" rel="noopener">{e(label)} <span aria-hidden="true">↗</span></a>'
         for j, (label, u) in enumerate(t["links"])
     )
-    meta = [f"BPT {t['num']:02d}", e(t["kind"]), e(t["range"])]
+    meta = [e(t["kind"]), e(t["range"])]
     if when:
-        meta.insert(1, f'<time datetime="{t["date"]}">{when}</time>')
+        meta.insert(0, f'<time datetime="{t["date"]}">{when}</time>')
     pn = '<nav class="pn wrap" aria-label="More treks">'
     pn += (f'<a class="pn-prev" href="{prev_t["slug"]}.html"><span>Newer</span>{e(prev_t["name"])}</a>' if prev_t else "<span></span>")
     pn += (f'<a class="pn-next" href="{next_t["slug"]}.html"><span>Older</span>{e(next_t["name"])}</a>' if next_t else "<span></span>")
