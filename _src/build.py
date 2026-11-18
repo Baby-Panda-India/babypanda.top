@@ -14,7 +14,7 @@ from treks import TREKS, IG  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://babypanda.top"
-THADAM = "https://thadam.pages.dev"
+THADAM = "https://thadam.babypanda.top"
 PHONES = [("+91 86674 49954", "+918667449954")]
 RANGES = ["Sahyadris", "Eastern Ghats", "Palani Hills"]
 
@@ -275,8 +275,8 @@ def thadam_section(depth):
       <p class="lead">On our treks we kept running into two problems: trail information that was wrong or missing, and no help once the network disappeared. Thadam is our answer, starting with Tamil Nadu's forest and temple trails.</p>
       <ul class="feats">{items}</ul>
       <div class="actions">
-        <a class="btn btn-light" href="{THADAM}" rel="noopener">Open Thadam</a>
-        <span class="note">Early prototype · Tamil and English · Built for the TN Tourism Innovation Challenge 2026</span>
+        <a class="btn btn-light" href="{THADAM}">Get the Android app</a>
+        <span class="note">Android app · Preview build · Tamil, English and 11 more languages</span>
       </div>
     </div>
     <div class="phones" aria-label="Thadam screenshots" data-phones>
@@ -423,7 +423,7 @@ FAQS = [
     ("What happens if it rains heavily?",
      "Streams and canyons can rise quickly. If a crossing or a stretch looks unsafe on the day, we turn back. No view is worth the risk."),
     ("Is Thadam free?",
-     "Thadam is an early prototype you can open in your browser today. Its safety features — offline maps, off-route alerts and check-in — will always be free."),
+     "Thadam is a free Android app, in preview, that you can download from thadam.babypanda.top. Its safety features — offline maps, off-route alerts and check-in — will always be free."),
 ]
 
 
@@ -488,7 +488,7 @@ def page_trek(i):
     tn = "Tamil Nadu" in t["place"]
     plug = (
         f'<aside class="plug"><img src="../assets/img/thadam-icon.svg" alt="" width="44" height="44"><div><h2>Trekking in {"Tamil Nadu" if tn else "the hills"}?</h2>'
-        f'<p>Thadam gives you verified trail data and keeps working with no signal.</p><a href="{THADAM}" rel="noopener">Open Thadam ↗</a></div></aside>'
+        f'<p>Thadam gives you honest trail data and keeps working with no signal.</p><a href="{THADAM}">Get the Android app ↗</a></div></aside>'
     )
     out = head(f"{t['name']} · Baby Panda Treks", t["summary"], f"/treks/{t['slug']}.html", 1)
     out += '<body class="post">\n<div class="progress" aria-hidden="true"><span data-progress></span></div>\n' + nav(1, "treks")
